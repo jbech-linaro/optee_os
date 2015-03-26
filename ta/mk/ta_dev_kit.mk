@@ -11,6 +11,8 @@ sm := ta
 sm-$(ta) := y
 binary := $(BINARY)
 
+CROSS_COMPILE_$(sm)	?= $(CROSS_COMPILE)
+
 ifneq ($O,)
 out-dir := $O
 else
