@@ -6,15 +6,10 @@ DEV_PATH=$HOME/devel/qemu_optee
 
 # You only need to set these variables if you have access to the OPTEE_TEST
 # (requires a Linaro account and access to the git called optee_test.git)
-# If, in addition to the base OPTEE_TEST, you have access to the GlobalPlatform
-# "TEE Initial Configuration" test suite, you may add the tests by extracting
-# the test package in the current directory and run:
-#   $ export CFG_GP_PACKAGE_PATH=<path to the test suite directory>
-#   $ export CFG_GP_TESTSUITE_ENABLE=y
 #   $ ./setup_qemu_optee.sh
 #   $ ./build.sh
-#LINARO_USERNAME=firstname.lastname # Should _NOT_ contain @linaro.org.
-#HAVE_ACCESS_TO_OPTEE_TEST=1
+LINARO_USERNAME=joakim.bech # Should _NOT_ contain @linaro.org.
+HAVE_ACCESS_TO_OPTEE_TEST=1
 
 # Notices for Secure Element API test:
 # If configure/make of QEMU fails it could be due to missing packages
@@ -376,35 +371,35 @@ EOF
 if [ -n "$HAVE_ACCESS_TO_OPTEE_TEST" ]; then
 cat >> $DST_GEN_ROOTFS/filelist-tee.txt << EOF
 # Trusted Applications
-file /lib/optee_armtz/d17f73a0-36ef-11e1-984a0002a5d5c51b.ta $DEV_PATH/out/utest/user_ta/armv7/rpc_test/d17f73a0-36ef-11e1-984a0002a5d5c51b.ta 444 0 0
-file /lib/optee_armtz/cb3e5ba0-adf1-11e0-998b0002a5d5c51b.ta $DEV_PATH/out/utest/user_ta/armv7/crypt/cb3e5ba0-adf1-11e0-998b0002a5d5c51b.ta 444 0 0
-file /lib/optee_armtz/b689f2a7-8adf-477a-9f9932e90c0ad0a2.ta $DEV_PATH/out/utest/user_ta/armv7/storage/b689f2a7-8adf-477a-9f9932e90c0ad0a2.ta 444 0 0
-file /lib/optee_armtz/5b9e0e40-2636-11e1-ad9e0002a5d5c51b.ta $DEV_PATH/out/utest/user_ta/armv7/os_test/5b9e0e40-2636-11e1-ad9e0002a5d5c51b.ta 444 0 0
-file /lib/optee_armtz/c3f6e2c0-3548-11e1-b86c0800200c9a66.ta $DEV_PATH/out/utest/user_ta/armv7/create_fail_test/c3f6e2c0-3548-11e1-b86c0800200c9a66.ta 444 0 0
-file /lib/optee_armtz/e6a33ed4-562b-463a-bb7eff5e15a493c8.ta $DEV_PATH/out/utest/user_ta/armv7/sims/e6a33ed4-562b-463a-bb7eff5e15a493c8.ta 444 0 0
+file /lib/optee_armtz/d17f73a0-36ef-11e1-984a0002a5d5c51b.ta $DEV_PATH/out/optee_test/ta/rpc_test/d17f73a0-36ef-11e1-984a0002a5d5c51b.ta 444 0 0
+file /lib/optee_armtz/cb3e5ba0-adf1-11e0-998b0002a5d5c51b.ta $DEV_PATH/out/optee_test/ta/crypt/cb3e5ba0-adf1-11e0-998b0002a5d5c51b.ta 444 0 0
+file /lib/optee_armtz/b689f2a7-8adf-477a-9f9932e90c0ad0a2.ta $DEV_PATH/out/optee_test/ta/storage/b689f2a7-8adf-477a-9f9932e90c0ad0a2.ta 444 0 0
+file /lib/optee_armtz/5b9e0e40-2636-11e1-ad9e0002a5d5c51b.ta $DEV_PATH/out/optee_test/ta/os_test/5b9e0e40-2636-11e1-ad9e0002a5d5c51b.ta 444 0 0
+file /lib/optee_armtz/c3f6e2c0-3548-11e1-b86c0800200c9a66.ta $DEV_PATH/out/optee_test/ta/create_fail_test/c3f6e2c0-3548-11e1-b86c0800200c9a66.ta 444 0 0
+file /lib/optee_armtz/e6a33ed4-562b-463a-bb7eff5e15a493c8.ta $DEV_PATH/out/optee_test/ta/sims/e6a33ed4-562b-463a-bb7eff5e15a493c8.ta 444 0 0
 
 # OP-TEE Tests
-file /bin/xtest $DEV_PATH/out/utest/host/xtest/bin/xtest 755 0 0
+file /bin/xtest $DEV_PATH/out/optee_test/xtest/xtest 755 0 0
 EOF
 
-if [ "$CFG_GP_TESTSUITE_ENABLE" = y ]; then
+if [ "$GP_ENABLED" = y ]; then
 cat >> $DST_GEN_ROOTFS/filelist-tee.txt << EOF
 
 # Additional TAs for GP tests
-file /lib/optee_armtz/534d4152-5443-534c-4d4c54494e535443.ta $DEV_PATH/out/utest/user_ta/armv7/GP_TTA_TCF_MultipleInstanceTA/534d4152-5443-534c-4d4c54494e535443.ta 444 0 0
-file /lib/optee_armtz/534d4152-542d-4353-4c542d54412d5354.ta $DEV_PATH/out/utest/user_ta/armv7/GP_TTA_testingClientAPI/534d4152-542d-4353-4c542d54412d5354.ta 444 0 0
-file /lib/optee_armtz/534d4152-5443-534c-5444415441535431.ta $DEV_PATH/out/utest/user_ta/armv7/GP_TTA_DS/534d4152-5443-534c-5444415441535431.ta 444 0 0
-file /lib/optee_armtz/534d4152-542d-4353-4c542d54412d5355.ta $DEV_PATH/out/utest/user_ta/armv7/GP_TTA_answerSuccessTo_OpenSession_Invoke/534d4152-542d-4353-4c542d54412d5355.ta 444 0 0
-file /lib/optee_armtz/534d4152-5443-534c-5443525950544f31.ta $DEV_PATH/out/utest/user_ta/armv7/GP_TTA_Crypto/534d4152-5443-534c-5443525950544f31.ta 444 0 0
-file /lib/optee_armtz/534d4152-5443-534c-5f54494d45415049.ta $DEV_PATH/out/utest/user_ta/armv7/GP_TTA_Time/534d4152-5443-534c-5f54494d45415049.ta 444 0 0
-file /lib/optee_armtz/534d4152-5443-4c53-41524954484d4554.ta $DEV_PATH/out/utest/user_ta/armv7/GP_TTA_Arithmetical/534d4152-5443-4c53-41524954484d4554.ta 444 0 0
-file /lib/optee_armtz/534d4152-5443-534c-544f53345041524d.ta $DEV_PATH/out/utest/user_ta/armv7/GP_TTA_check_OpenSession_with_4_parameters/534d4152-5443-534c-544f53345041524d.ta 444 0 0
-file /lib/optee_armtz/534d4152-5443-534c-54455252544f4f53.ta $DEV_PATH/out/utest/user_ta/armv7/GP_TTA_answerErrorTo_OpenSession/534d4152-5443-534c-54455252544f4f53.ta 444 0 0
-file /lib/optee_armtz/534d4152-542d-4353-4c542d54412d4552.ta $DEV_PATH/out/utest/user_ta/armv7/GP_TTA_answerErrorTo_Invoke/534d4152-542d-4353-4c542d54412d4552.ta 444 0 0
-file /lib/optee_armtz/534d4152-5443-534c-53474c494e535443.ta $DEV_PATH/out/utest/user_ta/armv7/GP_TTA_TCF_SingleInstanceTA/534d4152-5443-534c-53474c494e535443.ta 444 0 0
-file /lib/optee_armtz/534d4152-5443-534c-5441544346494341.ta $DEV_PATH/out/utest/user_ta/armv7/GP_TTA_TCF_ICA/534d4152-5443-534c-5441544346494341.ta 444 0 0
-file /lib/optee_armtz/534d4152-5443-534c-5454434649434132.ta $DEV_PATH/out/utest/user_ta/armv7/GP_TTA_TCF_ICA2/534d4152-5443-534c-5454434649434132.ta 444 0 0
-file /lib/optee_armtz/534d4152-542d-4353-4c542d54412d3031.ta $DEV_PATH/out/utest/user_ta/armv7/GP_TTA_TCF/534d4152-542d-4353-4c542d54412d3031.ta 444 0 0
+file /lib/optee_armtz/534d4152-5443-534c-4d4c54494e535443.ta $DEV_PATH/out/optee_test/ta/GP_TTA_TCF_MultipleInstanceTA/534d4152-5443-534c-4d4c54494e535443.ta 444 0 0
+file /lib/optee_armtz/534d4152-542d-4353-4c542d54412d5354.ta $DEV_PATH/out/optee_test/ta/GP_TTA_testingClientAPI/534d4152-542d-4353-4c542d54412d5354.ta 444 0 0
+file /lib/optee_armtz/534d4152-5443-534c-5444415441535431.ta $DEV_PATH/out/optee_test/ta/GP_TTA_DS/534d4152-5443-534c-5444415441535431.ta 444 0 0
+file /lib/optee_armtz/534d4152-542d-4353-4c542d54412d5355.ta $DEV_PATH/out/optee_test/ta/GP_TTA_answerSuccessTo_OpenSession_Invoke/534d4152-542d-4353-4c542d54412d5355.ta 444 0 0
+file /lib/optee_armtz/534d4152-5443-534c-5443525950544f31.ta $DEV_PATH/out/optee_test/ta/GP_TTA_Crypto/534d4152-5443-534c-5443525950544f31.ta 444 0 0
+file /lib/optee_armtz/534d4152-5443-534c-5f54494d45415049.ta $DEV_PATH/out/optee_test/ta/GP_TTA_Time/534d4152-5443-534c-5f54494d45415049.ta 444 0 0
+file /lib/optee_armtz/534d4152-5443-4c53-41524954484d4554.ta $DEV_PATH/out/optee_test/ta/GP_TTA_Arithmetical/534d4152-5443-4c53-41524954484d4554.ta 444 0 0
+file /lib/optee_armtz/534d4152-5443-534c-544f53345041524d.ta $DEV_PATH/out/optee_test/ta/GP_TTA_check_OpenSession_with_4_parameters/534d4152-5443-534c-544f53345041524d.ta 444 0 0
+file /lib/optee_armtz/534d4152-5443-534c-54455252544f4f53.ta $DEV_PATH/out/optee_test/ta/GP_TTA_answerErrorTo_OpenSession/534d4152-5443-534c-54455252544f4f53.ta 444 0 0
+file /lib/optee_armtz/534d4152-542d-4353-4c542d54412d4552.ta $DEV_PATH/out/optee_test/ta/GP_TTA_answerErrorTo_Invoke/534d4152-542d-4353-4c542d54412d4552.ta 444 0 0
+file /lib/optee_armtz/534d4152-5443-534c-53474c494e535443.ta $DEV_PATH/out/optee_test/ta/GP_TTA_TCF_SingleInstanceTA/534d4152-5443-534c-53474c494e535443.ta 444 0 0
+file /lib/optee_armtz/534d4152-5443-534c-5441544346494341.ta $DEV_PATH/out/optee_test/ta/GP_TTA_TCF_ICA/534d4152-5443-534c-5441544346494341.ta 444 0 0
+file /lib/optee_armtz/534d4152-5443-534c-5454434649434132.ta $DEV_PATH/out/optee_test/ta/GP_TTA_TCF_ICA2/534d4152-5443-534c-5454434649434132.ta 444 0 0
+file /lib/optee_armtz/534d4152-542d-4353-4c542d54412d3031.ta $DEV_PATH/out/optee_test/ta/GP_TTA_TCF/534d4152-542d-4353-4c542d54412d3031.ta 444 0 0
 EOF
 fi
 
@@ -463,21 +458,21 @@ cat > $DEV_PATH/build_optee_tests.sh << EOF
 #!/bin/bash
 cd $DST_OPTEE_TEST
 export PATH=$DST_AARCH32_GCC/bin:\$PATH
+export CROSS_COMPILE_HOST_=arm-linux-gnueabihf-
+export CROSS_COMPILE_TA_=arm-linux-gnueabihf-
+export TA_DEV_KIT_DIR=$DEV_PATH/optee_os/out/arm32-plat-vexpress/export-user_ta
+export OPTEE_OUT=$DEV_PATH/out/optee_test
 
-export CFG_DEV_PATH=$DEV_PATH
-export CFG_PLATFORM_FLAVOR=qemu_virt
-export CFG_ROOTFS_DIR=\$CFG_DEV_PATH/out
-
-if [ "\$CFG_GP_TESTSUITE_ENABLE" = y ]; then
-export CFG_GP_PACKAGE_PATH=\${CFG_GP_PACKAGE_PATH:-$DST_OPTEE_TEST/TEE_Initial_Configuration-Test_Suite_v1_1_0_4-2014_11_07}
-if [ ! -d "\$CFG_GP_PACKAGE_PATH" ]; then
-  echo "CFG_GP_PACKAGE_PATH must be the path to the GP testsuite directory"
-  exit 1
+if [ "\$GP_ENABLED" = y ]; then
+	export CFG_GP_PACKAGE_PATH=\${CFG_GP_PACKAGE_PATH:-$DST_OPTEE_TEST/TEE_Initial_Configuration-Test_Suite_v1_1_0_4-2014_11_07}
+	if [ ! -d "\$CFG_GP_PACKAGE_PATH" ]; then
+		  echo "CFG_GP_PACKAGE_PATH must be the path to the GP testsuite directory"
+		  exit 1
+	fi
+	make patch
 fi
-make patch
-fi
 
-make -j\`getconf _NPROCESSORS_ONLN\` \$@
+make -j\`getconf _NPROCESSORS_ONLN\` O=\$OPTEE_OUT \$@
 EOF
 
 chmod 711 $DEV_PATH/build_optee_tests.sh
