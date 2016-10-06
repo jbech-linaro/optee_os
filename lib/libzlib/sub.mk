@@ -12,6 +12,7 @@ srcs-y += deflate.c
 srcs-y += infback.c
 srcs-y += inffast.c
 srcs-y += inflate.c
+cflags-inflate.c-y += -Wno-shift-negative-value
 srcs-y += inftrees.c
 srcs-y += trees.c
 srcs-y += uncompr.c

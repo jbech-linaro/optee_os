@@ -57,9 +57,10 @@ static int init_size(int size_bits, void **a)
 
 static void deinit(void *a)
 {
+	mpanum *m = (void *)&a;
 	LTC_ARGCHKVD(a != NULL);
 
-	mpa_free_static_temp_var((mpanum *) &a, external_mem_pool);
+	mpa_free_static_temp_var(m, external_mem_pool);
 }
 
 static int neg(void *a, void *b)
@@ -489,7 +490,8 @@ static int montgomery_reduce(void *a, void *b, void *c)
 	LTC_ARGCHK(b != NULL);
 	LTC_ARGCHK(c != NULL);
 	mpanum tmp;
-	if (init((void **)&tmp) != CRYPT_OK) {
+	void *t = &tmp;
+	if (init((void **)t) != CRYPT_OK) {
 		return CRYPT_MEM;
 	}
 	// WARNING

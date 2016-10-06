@@ -12,6 +12,7 @@ srcs-y += aes_modes_armv8a_ce_a32.S
 else
 srcs-$(CFG_CRYPTO_AES) += aes.c
 srcs-$(CFG_CRYPTO_AES) += aes_tab.c
+cflags-aes_tab.c-y += -Wno-unused-const-variable
 endif
 endif
 
