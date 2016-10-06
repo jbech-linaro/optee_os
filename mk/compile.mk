@@ -34,7 +34,9 @@ comp-cflags-warns-high = \
 	-Wmissing-prototypes -Wnested-externs -Wpointer-arith \
 	-Wshadow -Wstrict-prototypes -Wswitch-default \
 	-Wwrite-strings \
-	-Wno-missing-field-initializers -Wno-format-zero-length
+	-Wno-missing-field-initializers -Wno-format-zero-length \
+	-Wduplicated-cond -Wlogical-op -Wnull-dereference
+
 comp-cflags-warns-medium = \
 	-Waggregate-return -Wredundant-decls
 comp-cflags-warns-low = \
