@@ -99,3 +99,9 @@ cscope:
 	${q}rm -f cscope.*
 	${q}find $(PWD) -name "*.[chSs]" | grep -v "$(PWD)/out" > cscope.files
 	${q}cscope -b -q -k
+
+.PHONY: coccinelle
+coccinelle:
+	@echo Running coccinelle
+	${q}coccinelle/run_coccinelle $(CURDIR)
+	${q}find . -name "*.cocci_res"
