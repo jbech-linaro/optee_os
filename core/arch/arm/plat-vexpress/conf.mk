@@ -10,6 +10,9 @@ endif
 ifeq ($(PLATFORM_FLAVOR),juno)
 include core/arch/arm/cpu/cortex-armv8-0.mk
 platform-debugger-arm := 1
+# Workaround 808870: Unconditional VLDM instructions might cause an
+# alignment fault even though the address is aligned
+$(call force,CFG_TA_ARM32_NO_HARD_FLOAT_SUPPORT,y)
 endif
 ifeq ($(PLATFORM_FLAVOR),qemu_armv8a)
 include core/arch/arm/cpu/cortex-armv8-0.mk
@@ -87,10 +90,7 @@ endif
 $(call force,CFG_BOOT_SECONDARY_REQUEST,y)
 $(call force,CFG_PSCI_ARM32,y)
 $(call force,CFG_DT,y)
-# SE API is only supported by QEMU Virt platform
-CFG_SE_API ?= y
-CFG_SE_API_SELF_TEST ?= y
-CFG_PCSC_PASSTHRU_READER_DRV ?= n
+CFG_DTB_MAX_SIZE ?= 0x100000
 endif
 
 ifeq ($(PLATFORM_FLAVOR),qemu_armv8a)
@@ -105,4 +105,5 @@ CFG_SHMEM_SIZE  ?= 0x00200000
 # When Secure Data Path is enable, last MByte of TZDRAM is SDP test memory.
 CFG_TEE_SDP_MEM_SIZE ?= 0x00400000
 $(call force,CFG_DT,y)
+CFG_DTB_MAX_SIZE ?= 0x100000
 endif

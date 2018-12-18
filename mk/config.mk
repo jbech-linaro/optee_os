@@ -32,9 +32,6 @@ endif
 # Supported values: undefined, 1, 2 and 3. 3 gives more warnings.
 WARNS ?= 3
 
-# Define NOWERROR=1 so that warnings are not treated as errors
-# NOWERROR=1
-
 # Define DEBUG=1 to compile without optimization (forces -O0)
 # DEBUG=1
 
@@ -44,14 +41,20 @@ WARNS ?= 3
 # so assertions are disabled.
 CFG_TEE_CORE_DEBUG ?= y
 
-# Log levels for the TEE core and user-mode TAs
-# Defines which messages are displayed on the secure console
+# Log levels for the TEE core. Defines which core messages are displayed
+# on the secure console. Disabling core log (level set to 0) also disables
+# logs from the TAs.
 # 0: none
 # 1: error
 # 2: error + warning
 # 3: error + warning + debug
 # 4: error + warning + debug + flow
 CFG_TEE_CORE_LOG_LEVEL ?= 1
+
+# TA log level
+# If user-mode library libutils.a is built with CFG_TEE_TA_LOG_LEVEL=0,
+# TA tracing is disabled regardless of the value of CFG_TEE_TA_LOG_LEVEL
+# when the TA is built.
 CFG_TEE_TA_LOG_LEVEL ?= 1
 
 # TA enablement
@@ -73,8 +76,8 @@ CFG_TEE_CORE_MALLOC_DEBUG ?= n
 CFG_TEE_TA_MALLOC_DEBUG ?= n
 
 # Mask to select which messages are prefixed with long debugging information
-# (severity, thread ID, component name, function name, line number) based on
-# the message level. If BIT(level) is set, the long prefix is shown.
+# (severity, core ID, thread ID, component name, function name, line number)
+# based on the message level. If BIT(level) is set, the long prefix is shown.
 # Otherwise a short prefix is used (severity and component name only).
 # Levels: 0=none 1=error 2=info 3=debug 4=flow
 CFG_MSG_LONG_PREFIX_MASK ?= 0x1a
@@ -110,7 +113,7 @@ endif
 # with limited depth not including any tag, so there is really no guarantee
 # that TEE_IMPL_VERSION contains the major and minor revision numbers.
 CFG_OPTEE_REVISION_MAJOR ?= 3
-CFG_OPTEE_REVISION_MINOR ?= 2
+CFG_OPTEE_REVISION_MINOR ?= 3
 
 # Trusted OS implementation manufacturer name
 CFG_TEE_MANUFACTURER ?= LINARO
@@ -202,7 +205,12 @@ CFG_REE_FS_TA ?= y
 #                                    # later library recompilations.
 #   <build some TAs>
 #   $ make EARLY_TA_PATHS=<paths>    # Build OP-TEE and embbed the TA(s)
-ifneq ($(EARLY_TA_PATHS),)
+#
+# Another option is CFG_IN_TREE_EARLY_TAS which is used to point at
+# in-tree TAs. CFG_IN_TREE_EARLY_TAS is formatted as:
+# <name-of-ta>/<uuid>
+# for instance avb/023f8f1a-292a-432b-8fc4-de8471358067
+ifneq ($(EARLY_TA_PATHS)$(CFG_IN_TREE_EARLY_TAS),)
 $(call force,CFG_EARLY_TA,y)
 else
 CFG_EARLY_TA ?= n
@@ -217,6 +225,18 @@ CFG_TA_DYNLINK ?= y
 # Enable paging, requires SRAM, can't be enabled by default
 CFG_WITH_PAGER ?= n
 
+# Runtime lock dependency checker: ensures that a proper locking hierarchy is
+# used in the TEE core when acquiring and releasing mutexes. Any violation will
+# cause a panic as soon as the invalid locking condition is detected. If
+# CFG_UNWIND is enabled, the algorithm records the call stacks when locks are
+# taken, and prints them when a potential deadlock is found.
+# Expect a significant performance impact when enabling this.
+CFG_LOCKDEP ?= n
+
+# BestFit algorithm in bget reduces the fragmentation of the heap when running
+# with the pager enabled or lockdep
+CFG_CORE_BGET_BESTFIT ?= $(call cfg-one-enabled, CFG_WITH_PAGER CFG_LOCKDEP)
+
 # Use the pager for user TAs
 CFG_PAGED_USER_TA ?= $(CFG_WITH_PAGER)
 
@@ -230,15 +250,40 @@ CFG_CORE_SANITIZE_UNDEFINED ?= n
 CFG_CORE_SANITIZE_KADDRESS ?= n
 
 # Device Tree support
-# When enabled, the TEE _start function expects to find the address of a
-# Device Tree Blob (DTB) in register r2. The DT parsing code relies on
-# libfdt.  Currently only used to add the optee node and a reserved-memory
-# node for shared memory.
+#
+# When CFG_DT is enabled core embeds the FDT library (libfdt) allowing
+# device tree blob (DTB) parsing from the core.
+#
+# When CFG_DT is enabled, the TEE _start function expects to find
+# the address of a DTB in register X2/R2 provided by the early boot stage
+# or value 0 if boot stage provides no DTB.
+#
+# When CFG_EMBED_DTB is enabled, CFG_EMBED_DTB_SOURCE_FILE shall define the
+# relative path of a DTS file located in core/arch/$(ARCH)/dts.
+# The DTS file is compiled into a DTB file which content is embedded in a
+# read-only section of the core.
+ifneq ($(strip $(CFG_EMBED_DTB_SOURCE_FILE)),)
+CFG_EMBED_DTB ?= y
+endif
+ifeq ($(CFG_EMBED_DTB),y)
+$(call force,CFG_DT,y)
+endif
+CFG_EMBED_DTB ?= n
 CFG_DT ?= n
 
 # Maximum size of the Device Tree Blob, has to be large enough to allow
 # editing of the supplied DTB.
 CFG_DTB_MAX_SIZE ?= 0x10000
+
+# Device Tree Overlay support.
+# This define enables support for an OP-TEE provided DTB overlay.
+# One of two modes is supported in this case:
+# 1. Append OP-TEE nodes to an existing DTB overlay located at CFG_DT_ADDR or
+#    passed in arg2
+# 2. Generate a new DTB overlay at CFG_DT_ADDR
+# A subsequent boot stage must then merge the generated overlay DTB into a main
+# DTB using the standard fdt_overlay_apply() method.
+CFG_EXTERNAL_DTB_OVERLAY ?= n
 
 # Enable core self tests and related pseudo TAs
 CFG_TEE_CORE_EMBED_INTERNAL_TESTS ?= y
@@ -326,3 +371,7 @@ CFG_TA_MBEDTLS ?= y
 # Compile the TA library mbedTLS with self test functions, the functions
 # need to be called to test anything
 CFG_TA_MBEDTLS_SELF_TEST ?= y
+
+# Enable TEE_ALG_RSASSA_PKCS1_V1_5 algorithm for signing with PKCS#1 v1.5 EMSA
+# # without ASN.1 around the hash.
+CFG_CRYPTO_RSASSA_NA1 ?= y

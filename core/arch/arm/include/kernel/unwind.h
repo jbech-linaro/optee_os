@@ -90,15 +90,19 @@ void print_kernel_stack(int level);
 #ifdef ARM64
 static inline void print_stack_arm64(int level __unused,
 				     struct unwind_state_arm64 *state __unused,
-				     uaddr_t exidx __unused,
-				     size_t exidx_sz __unused)
+				     bool kernel_stack __unused,
+				     vaddr_t stack __unused,
+				     size_t stack_size __unused)
 {
 }
 #endif
 static inline void print_stack_arm32(int level __unused,
 				     struct unwind_state_arm32 *state __unused,
 				     uaddr_t exidx __unused,
-				     size_t exidx_sz __unused)
+				     size_t exidx_sz __unused,
+				     bool kernel_stack __unused,
+				     vaddr_t stack __unused,
+				     size_t stack_size __unused)
 {
 }
 static inline void print_kernel_stack(int level __unused)
@@ -109,12 +113,18 @@ static inline void print_kernel_stack(int level __unused)
 
 #ifdef CFG_UNWIND
 TEE_Result relocate_exidx(void *exidx, size_t exidx_sz, int32_t offset);
+/* Get current call stack as an array allocated on the heap */
+vaddr_t *unw_get_kernel_stack(void);
 #else
 static inline TEE_Result relocate_exidx(void *exidx __unused,
 					size_t exidx_sz __unused,
 					int32_t offset __unused)
 {
 	return TEE_ERROR_NOT_SUPPORTED;
+}
+static inline void *unw_get_kernel_stack(void)
+{
+	return NULL;
 }
 #endif /* CFG_UNWIND  */
 
