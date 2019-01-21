@@ -400,5 +400,9 @@ CFG_TA_MBEDTLS_SELF_TEST ?= y
 # Enable TEE_ALG_RSASSA_PKCS1_V1_5 algorithm for signing with PKCS#1 v1.5 EMSA
 # # without ASN.1 around the hash.
 CFG_CRYPTO_RSASSA_NA1 ?= y
+
 # Compile with fstack-protector-strong enabled.
 CFG_CORE_STACK_PROTECTOR_STRONG ?= y
+
+# Compile with FORTIFY_SOURCE enabled.
+CFG_CORE_FORTIFY_SOURCE ?= y

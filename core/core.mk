@@ -55,6 +55,15 @@ ifeq ($(CFG_CORE_STACK_PROTECTOR_STRONG),y)
 cflags$(sm)	+= -fstack-protector-strong
 endif
 
+# Only enable FORTIFY_SOURCE on non-debug builds (-O1 and greater)
+ifneq ($(DEBUG),1)
+ifeq ($(CFG_CORE_FORTIFY_SOURCE),y)
+# Enables both compile- and run-time checks for overflows various string and
+# memory manipulation functions.
+cflags$(sm)	+= -D_FORTIFY_SOURCE=2
+endif
+endif
+
 cppflags$(sm)	+= -Ilib/libutee/include
 
 # Tell all libraries and sub-directories (included below) that we have a
