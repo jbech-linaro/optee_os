@@ -50,6 +50,11 @@ ifneq ($(CFG_TEE_CORE_DEBUG),y)
 cppflags$(sm)  += -DNDEBUG
 endif
 
+# Hardening configuration
+ifeq ($(CFG_CORE_STACK_PROTECTOR_STRONG),y)
+cflags$(sm)	+= -fstack-protector-strong
+endif
+
 cppflags$(sm)	+= -Ilib/libutee/include
 
 # Tell all libraries and sub-directories (included below) that we have a
