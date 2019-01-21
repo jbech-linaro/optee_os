@@ -69,6 +69,10 @@ libnames += mbedtls
 libdeps += $(ta-dev-kit-dir$(sm))/lib/libmbedtls.a
 endif
 
+ifeq ($(CFG_TA_STACK_PROTECTOR_STRONG),y)
+cflags$(sm)	+= -fstack-protector-strong
+endif
+
 # Pass config variable (CFG_) from conf.mk on the command line
 cppflags$(sm) += $(strip \
 	$(foreach var, $(filter CFG_%,$(.VARIABLES)), \
