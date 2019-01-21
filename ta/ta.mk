@@ -33,6 +33,8 @@ ta-mk-file-export-vars-$(sm) += CFG_SYSTEM_PTA
 ta-mk-file-export-vars-$(sm) += CFG_TA_DYNLINK
 ta-mk-file-export-vars-$(sm) += CFG_TEE_TA_LOG_LEVEL
 ta-mk-file-export-vars-$(sm) += CFG_TA_STACK_PROTECTOR_STRONG
+ta-mk-file-export-vars-$(sm) += CFG_TA_FORTIFY_SOURCE
+ta-mk-file-export-vars-$(sm) += CFG_CC_OPTIMIZE_FOR_SIZE
 
 # Expand platform flags here as $(sm) will change if we have several TA
 # targets. Platform flags should not change after inclusion of ta/ta.mk.

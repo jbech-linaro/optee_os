@@ -69,6 +69,14 @@ libnames += mbedtls
 libdeps += $(ta-dev-kit-dir$(sm))/lib/libmbedtls.a
 endif
 
+ifeq ($(CFG_CC_OPTIMIZE_FOR_SIZE),y)
+ifeq ($(CFG_TA_FORTIFY_SOURCE),y)
+# Enables both compile- and run-time checks for overflows in various string and
+# memory manipulation functions.
+cflags$(sm)	+= -D_FORTIFY_SOURCE=2
+endif
+endif
+
 ifeq ($(CFG_TA_STACK_PROTECTOR_STRONG),y)
 cflags$(sm)	+= -fstack-protector-strong
 endif
