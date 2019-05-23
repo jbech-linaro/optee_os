@@ -2,6 +2,7 @@
 /*
  * Copyright (c) 2018, Linaro Limited
  */
+#include <kernel/huk_subkey.h>
 #include <kernel/msg_param.h>
 #include <kernel/pseudo_ta.h>
 #include <kernel/user_ta.h>
@@ -40,6 +41,33 @@ static TEE_Result system_rng_reseed(struct tee_ta_session *s __unused,
 	return TEE_SUCCESS;
 }
 
+static TEE_Result system_derive_ta_unique_key(
+			struct tee_ta_session *s __unused,
+			uint32_t param_types,
+			TEE_Param params[TEE_NUM_PARAMS])
+{
+	TEE_Result res = TEE_ERROR_GENERIC;
+	char const_data[] = { "foobar" };
+	size_t const_data_len = sizeof(const_data);
+
+	uint32_t exp_pt = TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_INPUT,
+					  TEE_PARAM_TYPE_MEMREF_OUTPUT,
+					  TEE_PARAM_TYPE_NONE,
+					  TEE_PARAM_TYPE_NONE);
+
+	if (exp_pt != param_types)
+		return TEE_ERROR_BAD_PARAMETERS;
+
+	if (params[0].memref.size == 0) {
+	}
+
+	res = huk_subkey_derive(HUK_SUBKEY_UNIQUE_TA,
+				const_data, const_data_len,
+				params[1].memref.buffer, TEE_SHA256_HASH_SIZE);
+
+	return res;
+}
+
 static TEE_Result open_session(uint32_t param_types __unused,
 			       TEE_Param params[TEE_NUM_PARAMS] __unused,
 			       void **sess_ctx __unused)
@@ -65,6 +93,10 @@ static TEE_Result invoke_command(void *sess_ctx __unused, uint32_t cmd_id,
 	switch (cmd_id) {
 	case PTA_SYSTEM_ADD_RNG_ENTROPY:
 		return system_rng_reseed(s, param_types, params);
+
+	case PTA_SYSTEM_DERIVE_TA_UNIQUE_KEY:
+		return system_derive_ta_unique_key(s, param_types, params);
+
 	default:
 		break;
 	}

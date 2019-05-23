@@ -22,5 +22,6 @@
  * [in]     memref[0]: entropy input data
  */
 #define PTA_SYSTEM_ADD_RNG_ENTROPY	0
+#define PTA_SYSTEM_DERIVE_TA_UNIQUE_KEY 1
 
 #endif /* __PTA_SYSTEM_H */
