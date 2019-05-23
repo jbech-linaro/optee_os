@@ -42,14 +42,13 @@ static TEE_Result system_rng_reseed(struct tee_ta_session *s __unused,
 }
 
 static TEE_Result system_derive_ta_unique_key(
-			struct tee_ta_session *s __unused,
+			struct tee_ta_session *s,
 			uint32_t param_types,
 			TEE_Param params[TEE_NUM_PARAMS])
 {
+	size_t const_data_len = TEE_SHA256_HASH_SIZE;
 	TEE_Result res = TEE_ERROR_GENERIC;
-	char const_data[] = { "foobar" };
-	size_t const_data_len = sizeof(const_data);
-
+	uint8_t *const_data = NULL;
 	uint32_t exp_pt = TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_INPUT,
 					  TEE_PARAM_TYPE_MEMREF_OUTPUT,
 					  TEE_PARAM_TYPE_NONE,
@@ -58,12 +57,33 @@ static TEE_Result system_derive_ta_unique_key(
 	if (exp_pt != param_types)
 		return TEE_ERROR_BAD_PARAMETERS;
 
-	if (params[0].memref.size == 0) {
-	}
+	/*
+	 * Check for user provided data that should be mixed toghether with the
+	 * TA UUID.
+	 */
+	if (params[0].memref.size > 0)
+		const_data_len += params[0].memref.size;
+
+	const_data = calloc(const_data_len, sizeof(*const_data));
+	if (!const_data)
+		goto err;
+
+	memcpy(const_data, &s->ctx->uuid, sizeof(TEE_UUID));
+
+	/* Append the user provided data */
+	if (params[0].memref.size > 0)
+		memcpy(const_data + sizeof(TEE_UUID), params[0].memref.buffer,
+		       params[0].memref.size);
 
 	res = huk_subkey_derive(HUK_SUBKEY_UNIQUE_TA,
 				const_data, const_data_len,
 				params[1].memref.buffer, TEE_SHA256_HASH_SIZE);
+err:
+	if (res != TEE_SUCCESS)
+		memzero_explicit(params[1].memref.buffer,
+				 params[1].memref.size);
+
+	free(const_data);
 
 	return res;
 }
