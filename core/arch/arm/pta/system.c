@@ -12,6 +12,17 @@
 
 #define MAX_ENTROPY_IN			32u
 
+/*
+ * Having keys with too few bits impose a potential security risk, hence set a
+ * lower bound (i.e., 128 bits).
+ */
+#define TA_DERIVED_KEY_MIN_SIZE 16
+
+/* Same value as max in huk_subkey_derive */
+#define TA_DERIVED_KEY_MAX_SIZE 32
+
+#define TA_DERIVED_EXTRA_DATA_MAX_SIZE 1024
+
 static unsigned int system_pnum;
 
 static TEE_Result system_rng_reseed(struct tee_ta_session *s __unused,
@@ -46,44 +57,47 @@ static TEE_Result system_derive_ta_unique_key(
 			uint32_t param_types,
 			TEE_Param params[TEE_NUM_PARAMS])
 {
-	size_t const_data_len = TEE_SHA256_HASH_SIZE;
+	size_t data_len = sizeof(TEE_UUID);
 	TEE_Result res = TEE_ERROR_GENERIC;
-	uint8_t *const_data = NULL;
+	uint8_t *data = NULL;
 	uint32_t exp_pt = TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_INPUT,
 					  TEE_PARAM_TYPE_MEMREF_OUTPUT,
 					  TEE_PARAM_TYPE_NONE,
 					  TEE_PARAM_TYPE_NONE);
 
-	if (exp_pt != param_types)
+	if (exp_pt != param_types ||
+	    params[0].memref.size > TA_DERIVED_EXTRA_DATA_MAX_SIZE ||
+	    params[1].memref.size < TA_DERIVED_KEY_MIN_SIZE ||
+	    params[1].memref.size > TA_DERIVED_KEY_MAX_SIZE)
 		return TEE_ERROR_BAD_PARAMETERS;
 
 	/*
-	 * Check for user provided data that should be mixed toghether with the
+	 * Check for user provided data that could be mixed together with the
 	 * TA UUID.
 	 */
 	if (params[0].memref.size > 0)
-		const_data_len += params[0].memref.size;
+		if (ADD_OVERFLOW(data_len, params[0].memref.size, &data_len))
+			return TEE_ERROR_SECURITY;
 
-	const_data = calloc(const_data_len, sizeof(*const_data));
-	if (!const_data)
+	data = calloc(data_len, sizeof(*data));
+	if (!data)
 		goto err;
 
-	memcpy(const_data, &s->ctx->uuid, sizeof(TEE_UUID));
+	memcpy(data, &s->ctx->uuid, sizeof(TEE_UUID));
 
 	/* Append the user provided data */
 	if (params[0].memref.size > 0)
-		memcpy(const_data + sizeof(TEE_UUID), params[0].memref.buffer,
+		memcpy(data + sizeof(TEE_UUID), params[0].memref.buffer,
 		       params[0].memref.size);
 
-	res = huk_subkey_derive(HUK_SUBKEY_UNIQUE_TA,
-				const_data, const_data_len,
-				params[1].memref.buffer, TEE_SHA256_HASH_SIZE);
+	res = huk_subkey_derive(HUK_SUBKEY_UNIQUE_TA, data, data_len,
+				params[1].memref.buffer,
+				params[1].memref.size);
 err:
 	if (res != TEE_SUCCESS)
 		memzero_explicit(params[1].memref.buffer,
 				 params[1].memref.size);
-
-	free(const_data);
+	free(data);
 
 	return res;
 }
