@@ -71,17 +71,27 @@ static TEE_Result system_derive_ta_unique_key(
 	    params[1].memref.size > TA_DERIVED_KEY_MAX_SIZE)
 		return TEE_ERROR_BAD_PARAMETERS;
 
+	 /* The derived key shall not end up in non-secure memory by mistake */
+	if (!tee_vbuf_is_sec(params[1].memref.buffer, params[1].memref.size)) {
+		res = TEE_ERROR_SECURITY;
+		goto err;
+	}
+
 	/*
 	 * Check for user provided data that could be mixed together with the
 	 * TA UUID.
 	 */
 	if (params[0].memref.size > 0)
-		if (ADD_OVERFLOW(data_len, params[0].memref.size, &data_len))
-			return TEE_ERROR_SECURITY;
+		if (ADD_OVERFLOW(data_len, params[0].memref.size, &data_len)) {
+			res = TEE_ERROR_SECURITY;
+			goto err;
+		}
 
 	data = calloc(data_len, sizeof(*data));
-	if (!data)
+	if (!data) {
+		res = TEE_ERROR_OUT_OF_MEMORY;
 		goto err;
+	}
 
 	memcpy(data, &s->ctx->uuid, sizeof(TEE_UUID));
 
