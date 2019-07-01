@@ -322,6 +322,10 @@ int ECB_ENC(const unsigned char *pt, unsigned char *ct, symmetric_key *skey)
     LTC_ARGCHK(skey != NULL);
     
     Nr = skey->rijndael.Nr;
+
+    if (Nr < 2 || Nr > 16)
+	    return CRYPT_INVALID_ROUNDS;
+
     rk = skey->rijndael.eK;
     
     /*
@@ -501,6 +505,10 @@ int ECB_DEC(const unsigned char *ct, unsigned char *pt, symmetric_key *skey)
     LTC_ARGCHK(skey != NULL);
     
     Nr = skey->rijndael.Nr;
+
+    if (Nr < 2 || Nr > 16)
+	    return CRYPT_INVALID_ROUNDS;
+
     rk = skey->rijndael.dK;
 
     /*
