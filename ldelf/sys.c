@@ -84,7 +84,7 @@ TEE_Result sys_map_zi(size_t num_bytes, uint32_t flags, vaddr_t *va,
 
 	res = invoke_sys_ta(PTA_SYSTEM_MAP_ZI, &params);
 	if (!res)
-		*va = reg_pair_to_64(params.vals[2], params.vals[3]);
+		*va = reg_pair_to_val(params.vals[2], params.vals[3]);
 	return res;
 }
 
@@ -164,7 +164,7 @@ TEE_Result sys_map_ta_bin(vaddr_t *va, size_t num_bytes, uint32_t flags,
 
 	res = invoke_sys_ta(PTA_SYSTEM_MAP_TA_BINARY, &params);
 	if (!res)
-		*va = reg_pair_to_64(params.vals[4], params.vals[5]);
+		*va = reg_pair_to_val(params.vals[4], params.vals[5]);
 	return res;
 }
 
@@ -230,6 +230,6 @@ TEE_Result sys_remap(vaddr_t old_va, vaddr_t *new_va, size_t num_bytes,
 
 	res = invoke_sys_ta(PTA_SYSTEM_REMAP, &params);
 	if (!res)
-		*new_va = reg_pair_to_64(params.vals[4], params.vals[5]);
+		*new_va = reg_pair_to_val(params.vals[4], params.vals[5]);
 	return res;
 }

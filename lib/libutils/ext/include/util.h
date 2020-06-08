@@ -149,6 +149,17 @@
 	}))
 
 #ifndef __ASSEMBLER__
+/*
+ * On 32-bit platforms the upper 32-bits aren't used, but with -Wconversion
+ * enabled, the compiler notices that we try to store a 64-bit value into a
+ * 32-bit variable and therefore produce warnings. With a macro we to an
+ * intentional mask corresponding to the size of the variable for the current
+ * platform. Likewise we have a couple of places where reg0 and reg1 are 64-bit
+ * parameters also with unused upper bits on 32-bit platforms. Therefore we
+ * have make a case in the macro to uint32_t.
+ */
+#define reg_pair_to_val(reg0, reg1) \
+	(reg_pair_to_64((uint32_t)reg0, (uint32_t)reg1) & UINTPTR_MAX)
 static inline uint64_t reg_pair_to_64(uint32_t reg0, uint32_t reg1)
 {
 	return (uint64_t)reg0 << 32 | reg1;

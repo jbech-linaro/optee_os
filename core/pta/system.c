@@ -153,7 +153,7 @@ static TEE_Result system_map_zi(struct tee_ta_session *s, uint32_t param_types,
 		vm_flags |= VM_FLAG_SHAREABLE;
 
 	num_bytes = params[0].value.a;
-	va = reg_pair_to_64(params[1].value.a, params[1].value.b);
+	va = reg_pair_to_val(params[1].value.a, params[1].value.b);
 	pad_begin = params[2].value.a;
 	pad_end = params[2].value.b;
 
@@ -193,7 +193,7 @@ static TEE_Result system_unmap(struct tee_ta_session *s, uint32_t param_types,
 	if (params[0].value.b)
 		return TEE_ERROR_BAD_PARAMETERS;
 
-	va = reg_pair_to_64(params[1].value.a, params[1].value.b);
+	va = reg_pair_to_val(params[1].value.a, params[1].value.b);
 	sz = ROUNDUP(params[0].value.a, SMALL_PAGE_SIZE);
 
 	/*
@@ -393,7 +393,7 @@ static TEE_Result system_map_ta_binary(struct system_ctx *ctx,
 	flags = params[0].value.b;
 	offs_bytes = params[1].value.a;
 	num_bytes = params[1].value.b;
-	va = reg_pair_to_64(params[2].value.a, params[2].value.b);
+	va = reg_pair_to_val(params[2].value.a, params[2].value.b);
 	pad_begin = params[3].value.a;
 	pad_end = params[3].value.b;
 
@@ -581,7 +581,7 @@ static TEE_Result system_set_prot(struct tee_ta_session *s,
 	if (flags & PTA_SYSTEM_MAP_FLAG_EXECUTABLE)
 		prot |= TEE_MATTR_UX;
 
-	va = reg_pair_to_64(params[1].value.a, params[1].value.b);
+	va = reg_pair_to_val(params[1].value.a, params[1].value.b);
 	sz = ROUNDUP(params[0].value.a, SMALL_PAGE_SIZE);
 
 	/*
@@ -631,8 +631,8 @@ static TEE_Result system_remap(struct tee_ta_session *s, uint32_t param_types,
 		return TEE_ERROR_BAD_PARAMETERS;
 
 	num_bytes = params[0].value.a;
-	old_va = reg_pair_to_64(params[1].value.a, params[1].value.b);
-	new_va = reg_pair_to_64(params[2].value.a, params[2].value.b);
+	old_va = reg_pair_to_val(params[1].value.a, params[1].value.b);
+	new_va = reg_pair_to_val(params[2].value.a, params[2].value.b);
 	pad_begin = params[3].value.a;
 	pad_end = params[3].value.b;
 

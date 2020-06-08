@@ -170,7 +170,7 @@ static uint32_t std_smc_entry(uint32_t a0, uint32_t a1, uint32_t a2,
 		DMSG("Expected 0x%x", OPTEE_SMC_CALL_WITH_ARG);
 		return OPTEE_SMC_RETURN_EBADCMD;
 	}
-	parg = reg_pair_to_64(a1, a2);
+	parg = reg_pair_to_val(a1, a2);
 
 	/* Check if this region is in static shared space */
 	if (core_pbuf_is(CORE_MEM_NSEC_SHM, parg,
@@ -302,9 +302,9 @@ static struct mobj *thread_rpc_alloc_arg(size_t size)
 	thread_rpc(rpc_args);
 
 	/* Registers 1 and 2 passed from normal world */
-	pa = reg_pair_to_64(rpc_args[0], rpc_args[1]);
+	pa = reg_pair_to_val(rpc_args[0], rpc_args[1]);
 	/* Registers 4 and 5 passed from normal world */
-	co = reg_pair_to_64(rpc_args[2], rpc_args[3]);
+	co = reg_pair_to_val(rpc_args[2], rpc_args[3]);
 
 	if (!ALIGNMENT_IS_OK(pa, struct optee_msg_arg))
 		goto err;

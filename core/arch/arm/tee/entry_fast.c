@@ -36,7 +36,7 @@ static void tee_entry_fastcall_l2cc_mutex(struct thread_smc_args *args)
 		reg_pair_from_64(pa, &args->a2, &args->a3);
 		break;
 	case OPTEE_SMC_L2CC_MUTEX_SET_ADDR:
-		pa = reg_pair_to_64(args->a2, args->a3);
+		pa = reg_pair_to_val(args->a2, args->a3);
 		ret = tee_set_l2cc_mutex(&pa);
 		break;
 	case OPTEE_SMC_L2CC_MUTEX_ENABLE:

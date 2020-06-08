@@ -110,7 +110,7 @@ void *dlsym(void *handle, const char *symbol)
 
 	res = invoke_system_pta(PTA_SYSTEM_DLSYM, param_types, params);
 	if (!res)
-		ptr = (void *)(vaddr_t)reg_pair_to_64(params[2].value.a,
+		ptr = (void *)(vaddr_t)reg_pair_to_val(params[2].value.a,
 						      params[2].value.b);
 
 	return ptr;

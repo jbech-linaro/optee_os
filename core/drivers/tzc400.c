@@ -313,9 +313,9 @@ TEE_Result tzc_get_region_config(uint8_t region, struct tzc_region_config *cfg)
 	if (region >= tzc.num_regions)
 		return TEE_ERROR_GENERIC;
 
-	cfg->base = reg_pair_to_64(tzc_read_region_base_high(tzc.base, region),
+	cfg->base = reg_pair_to_val(tzc_read_region_base_high(tzc.base, region),
 				   tzc_read_region_base_low(tzc.base, region));
-	cfg->top = reg_pair_to_64(tzc_read_region_top_high(tzc.base, region),
+	cfg->top = reg_pair_to_val(tzc_read_region_top_high(tzc.base, region),
 				  tzc_read_region_top_low(tzc.base, region));
 
 	cfg->ns_device_access = tzc_read_region_id_access(tzc.base, region);
@@ -419,7 +419,7 @@ static void dump_fail_filter(unsigned int filter)
 	if (status & BIT(filter + INT_STATUS_STATUS_SHIFT))
 		EMSG("Permission violation on filter %u", filter);
 
-	addr = reg_pair_to_64(io_read32(tzc.base + FAIL_ADDRESS_HIGH(filter)),
+	addr = reg_pair_to_val(io_read32(tzc.base + FAIL_ADDRESS_HIGH(filter)),
 			      io_read32(tzc.base + FAIL_ADDRESS_LOW(filter)));
 
 	EMSG("Violation @0x%"PRIx64", %ssecure %sprivileged %s, AXI ID %"PRIx32,

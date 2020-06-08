@@ -54,7 +54,7 @@ void *tee_map_zi(size_t len, uint32_t flags)
 	if (res)
 		return NULL;
 
-	return (void *)(vaddr_t)reg_pair_to_64(params[1].value.a,
+	return (void *)(vaddr_t)reg_pair_to_val(params[1].value.a,
 					       params[1].value.b);
 }
 

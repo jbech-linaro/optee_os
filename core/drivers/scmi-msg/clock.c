@@ -204,7 +204,7 @@ static void scmi_clock_rate_set(struct scmi_msg *msg)
 	clock_id = confine_array_index(in_args->clock_id,
 				       plat_scmi_clock_count(msg->agent_id));
 
-	rate_64 = reg_pair_to_64(in_args->rate[1], in_args->rate[0]);
+	rate_64 = reg_pair_to_val(in_args->rate[1], in_args->rate[0]);
 	rate = rate_64;
 
 	status = plat_scmi_clock_set_rate(msg->agent_id, clock_id, rate);
