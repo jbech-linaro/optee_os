@@ -4,6 +4,7 @@
  */
 
 #include <assert.h>
+#include <config.h>
 #include <ldelf.h>
 #include <malloc.h>
 #include <printk.h>
@@ -47,6 +48,13 @@ static void __noreturn __maybe_unused dump_ta_state(struct dump_entry_arg *arg)
 				       arg->arm64.pc);
 
 	sys_return_cleanup();
+}
+
+static void gdb_ldelf_helper(const vaddr_t ta_load_addr,
+			     const TEE_UUID *uuid)
+{
+	(void)ta_load_addr;
+	(void)uuid;
 }
 
 #ifdef CFG_FTRACE_SUPPORT
@@ -164,9 +172,12 @@ void ldelf(struct ldelf_arg *arg)
 		arg->ftrace_entry = (vaddr_t)(void *)ftrace_dump;
 #endif
 
-	TAILQ_FOREACH(elf, &main_elf_queue, link)
+	TAILQ_FOREACH(elf, &main_elf_queue, link) {
 		DMSG("ELF (%pUl) at %#"PRIxVA,
 		     (void *)&elf->uuid, elf->load_addr);
+		if (IS_ENABLED(CFG_GDB_HELPERS))
+			gdb_ldelf_helper(elf->load_addr, &elf->uuid);
+	}
 
 #if TRACE_LEVEL >= TRACE_ERROR
 	arg->dump_entry = (vaddr_t)(void *)dump_ta_state;

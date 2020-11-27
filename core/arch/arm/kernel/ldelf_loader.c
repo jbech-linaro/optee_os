@@ -6,6 +6,7 @@
  */
 
 #include <assert.h>
+#include <config.h>
 #include <kernel/ldelf_loader.h>
 #include <ldelf.h>
 #include <mm/mobj.h>
@@ -22,6 +23,12 @@ static const bool is_arm32 = true;
 #else
 static const bool is_arm32;
 #endif
+
+static void gdb_helper(const vaddr_t ldelf_addr, const TEE_UUID uuid)
+{
+	(void)ldelf_addr;
+	(void)uuid;
+}
 
 static TEE_Result alloc_and_map_ldelf_fobj(struct user_mode_ctx *uctx,
 					   size_t sz, uint32_t prot,
@@ -87,6 +94,9 @@ TEE_Result ldelf_load_ldelf(struct user_mode_ctx *uctx)
 		return res;
 
 	DMSG("ldelf load address %#"PRIxVA, code_addr);
+
+	if (IS_ENABLED(CFG_GDB_HELPERS))
+		gdb_helper(code_addr, uctx->ts_ctx->uuid);
 
 	return TEE_SUCCESS;
 }

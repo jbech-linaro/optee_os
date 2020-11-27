@@ -622,3 +622,6 @@ CFG_COMPAT_GP10_DES ?= y
 
 # Defines a limit for many levels TAs may call each others.
 CFG_CORE_MAX_SYSCALL_RECURSION ?= 4
+
+# Enable helper function used when running GDB.
+CFG_GDB_HELPERS ?= y
