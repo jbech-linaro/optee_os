@@ -43,6 +43,7 @@ srcs-$(CFG_SECURE_PARTITION) += secure_partition.c
 srcs-$(CFG_SECURE_PARTITION) += spmc_sp_handler.c
 
 srcs-y += boot.c
+cflags-boot.c-y := -O0
 srcs-$(CFG_ARM32_core) += entry_a32.S
 srcs-$(CFG_ARM64_core) += entry_a64.S
 

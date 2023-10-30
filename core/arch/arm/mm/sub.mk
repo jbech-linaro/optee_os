@@ -1,4 +1,5 @@
 srcs-y += core_mmu.c
+cflags-core_mmu.c-y := -O0
 srcs-$(CFG_WITH_PAGER) += tee_pager.c
 ifeq ($(CFG_WITH_LPAE),y)
 srcs-y += core_mmu_lpae.c

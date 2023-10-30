@@ -937,6 +937,29 @@ static int mark_tzdram_as_reserved(struct dt_descriptor *dt)
 				   CFG_TZDRAM_SIZE);
 }
 
+static int create_secure_heap_carveout(struct dt_descriptor *dt)
+{
+	int offs = -1;
+	int ret = -1;
+
+	ret = add_res_mem_dt_node(dt, "sdp", 0x3E800000, 0x00400000);
+	offs = fdt_path_offset(dt->blob, "/reserved-memory");
+	if (offs < 0)
+		return -1;
+
+	offs = fdt_subnode_offset(dt->blob, offs, "sdp");
+	if (offs < 0)
+		return -1;
+
+	ret = fdt_setprop_string(dt->blob, offs, "compatible",
+	"linaro,secure-heap");
+
+	if (ret != 0)
+		return -1;
+
+	return ret;
+}
+
 static void update_external_dt(void)
 {
 	struct dt_descriptor *dt = get_external_dt_desc();
@@ -957,6 +980,9 @@ static void update_external_dt(void)
 
 	if (mark_tzdram_as_reserved(dt))
 		panic("Failed to config secure memory");
+
+	if (create_secure_heap_carveout(dt))
+		panic("Failed to created secure heap carveout");
 }
 #else /*CFG_DT*/
 static void update_external_dt(void)
@@ -1072,6 +1098,8 @@ static void discover_nsec_memory(void)
 		panic();
 
 	memcpy(mem, phys_ddr_overall_begin, sizeof(*mem) * nelems);
+	fdt = get_embedded_dt();
+
 	core_mmu_set_discovered_nsec_ddr(mem, nelems);
 }
 #else /*CFG_CORE_DYN_SHM*/
