@@ -8,4 +8,17 @@
 
 / {
 	model = "Embedded device tree for OP-TEE/Qemu platform test purpose";
+  #address-cells = <1>;
+	#size-cells = <0>;
+
+	reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		sdp@3e800000 {
+			compatible = "linaro,secure-heap";
+			no-map;
+			reg = <0x3E800000 0x00400000>;
+		};
+	};
 };
