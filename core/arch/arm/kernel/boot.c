@@ -942,7 +942,8 @@ static int create_secure_heap_carveout(struct dt_descriptor *dt)
 	int offs = -1;
 	int ret = -1;
 
-	ret = add_res_mem_dt_node(dt, "sdp", 0x3E800000, 0x00400000);
+	/* 32MB for sdp */
+	ret = add_res_mem_dt_node(dt, "sdp", 0x48000000, 0x00200000);
 	offs = fdt_path_offset(dt->blob, "/reserved-memory");
 	if (offs < 0)
 		return -1;

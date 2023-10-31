@@ -18,7 +18,7 @@
 		sdp@3e800000 {
 			compatible = "linaro,secure-heap";
 			no-map;
-			reg = <0x3E800000 0x00400000>;
+			reg = <0x48000000 0x00200000>;
 		};
 	};
 };

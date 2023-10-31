@@ -11,6 +11,7 @@ srcs-y += interrupt.c
 ifeq ($(CFG_WITH_USER_TA),y)
 srcs-y += ldelf_loader.c
 srcs-y += ldelf_syscalls.c
+cflags-ldelf_syscalls.c-y := -O0
 srcs-y += scall.c
 endif
 srcs-$(CFG_LOCKDEP) += lockdep.c
@@ -26,6 +27,7 @@ srcs-$(CFG_SECURE_TIME_SOURCE_REE) += tee_time_ree.c
 srcs-y += otp_stubs.c
 srcs-y += tee_misc.c
 srcs-y += tee_ta_manager.c
+cflags-tee_ta_manager.c-y := -O0
 srcs-y += ts_manager.c
 srcs-$(CFG_CORE_SANITIZE_UNDEFINED) += ubsan.c
 srcs-y += scattered_array.c
@@ -43,6 +45,7 @@ srcs-y += thread.c
 
 ifeq ($(CFG_WITH_USER_TA),y)
 srcs-y += user_ta.c
+cflags-user_ta.c-y := -O0
 srcs-$(CFG_REE_FS_TA) += ree_fs_ta.c
 srcs-$(CFG_EARLY_TA) += early_ta.c
 srcs-$(CFG_SECSTOR_TA) += secstor_ta.c

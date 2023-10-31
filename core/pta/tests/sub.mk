@@ -1,5 +1,6 @@
 srcs-$(call cfg-all-enabled,CFG_REE_FS CFG_WITH_USER_TA) += fs_htree.c
 srcs-y += invoke.c
+cflags-invoke.c-y := -O0
 srcs-$(CFG_LOCKDEP) += lockdep.c
 srcs-y += misc.c
 cflags-misc.c-y += -fno-builtin

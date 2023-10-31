@@ -16,9 +16,11 @@ srcs-y += tee_api_panic.c
 srcs-y += tee_api_property.c
 srcs-y += tee_socket_pta.c
 srcs-y += tee_system_pta.c
+cflags-tee_system_pta.c-y := -O0
 srcs-y += tee_tcpudp_socket.c
 srcs-y += tcb.c
 srcs-y += user_ta_entry.c
+cflags-user_ta_entry.c-y := -O0
 srcs-y += user_ta_entry_compat.c
 endif #ifneq ($(sm),ldelf)
 
